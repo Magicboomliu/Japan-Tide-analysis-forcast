@@ -18,4 +18,4 @@
 
    The Orginal data of Tide Value of Hakotade, Otaru, and Osaka in March 2021.    
 
-![Original_data_all.png](https://i.loli.net/2021/05/13/2zoyWvjPCmgATwn.png)
+![Original_data_all.png](https://riyugo.com/o/210513/y10qmp.png)
