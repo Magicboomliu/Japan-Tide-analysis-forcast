@@ -14,6 +14,8 @@
 * Energy spectrum calculation
 * Cross-correlation calculation
 *  R value calculation   
-   All data processing is performed by python's third-party libraries: `numpy`, `statsmodel`, `matlibpyplot` for calculation and image drawing. 
+   All data processing is performed by python's third-party libraries: `numpy`, `statsmodel`, `matlibpyplot` for calculation and image drawing.   
 
+   The Orginal data of Tide Value of Hakotade, Otaru, and Osaka in March 2021.    
 
+![img](reports/figures/Original_data_all.png) 
