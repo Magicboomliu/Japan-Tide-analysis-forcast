@@ -16,6 +16,35 @@ from scipy.fftpack import fftfreq
 from scipy import signal
 import numpy as np
 
+def merge_all_data(dataframe):
+    cols,rows = dataframe.shape
+    data_list=[]
+    for i in range(cols):
+        for j in range(rows):
+            data_list.append(dataframe.iloc[i,j])
+    return data_list
+
+def plot_all(data_list,datalables,x_label,y_label,title,saved= None,figsize=(16,10),xticks= None):
+    plt.figure(figsize=figsize)
+    color =['r-','g-','b-','y-','p-']
+    for i,d in enumerate(data_list):
+        plt.plot(d,color[i],label= datalables[i])
+    if xticks is not None:
+        ticks_size = xticks[0]
+        inter_ = xticks[1]
+        xticks_content = xticks[2]
+        ticks_list = list(range(0,ticks_size+inter_,inter_))
+        plt.xticks(ticks_list,xticks_content)
+        
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.title(title)
+    plt.legend(loc = 1)
+    if saved is not None:
+        plt.savefig(saved)
+    plt.show()
+
+
 
 def get_max(list):
     max_val=-1e10
@@ -63,8 +92,16 @@ def use_max_each_rows(dataframe):
     return max_data_list
 
 # 画图
-def plot_image(x_data,x_label,y_label,title, x_data_label='x data',format_string='b-',saved= None):
+def plot_image(x_data,x_label,y_label,title, x_data_label='x data',format_string='b-',saved= None,figsize=(16,6),xticks= None):
+    plt.figure(figsize=figsize)
     plt.plot(x_data,format_string,label=x_data_label)
+    if xticks is not None:
+        ticks_size = xticks[0]
+        inter_ = xticks[1]
+        xticks_content = xticks[2]
+        ticks_list = list(range(0,ticks_size+inter_,inter_))
+        plt.xticks(ticks_list,xticks_content)
+        
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.title(title)
