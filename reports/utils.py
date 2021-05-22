@@ -111,17 +111,21 @@ def plot_image(x_data,x_label,y_label,title, x_data_label='x data',format_string
     plt.show()
 
 # 自相关图
-def draw_acf(data):
+def draw_acf(data,saved=None,figsize=(16,10)):
     data =list_to_series(data)
     data =data.dropna()
     plot_acf(data)
+    if saved is not None:
+        plt.savefig(saved)
     plt.show()
 
 # 偏自相关图
-def draw_pacf(data):
+def draw_pacf(data,saved=None,figsize=(16,10)):
     data = list_to_series(data)
     data = data.dropna()
     plot_pacf(data)
+    if saved is not None:
+        plt.savefig(saved)
     plt.show()
 
 # 返回AD

@@ -1,4 +1,5 @@
 from numpy import random
+from numpy.core.numeric import full
 from numpy.lib.function_base import percentile
 import utils
 import numpy as np
@@ -20,10 +21,22 @@ if __name__=="__main__":
     for i in range(32):
         xticks_list.append("3-{}".format(i))
     xticks_para =[31*24,24,xticks_list]
-    utils.plot_all(full_data_list,data_lengends,"Date(only show the point of 0:00 in the X axe)","Tide value ","Tide value per day of Hakodate,Otaru and Osaka",xticks=xticks_para,figsize=(16,10),saved="figures/Original_data_all.png")
 
-   # utils.plot_image(full_data_list,"Data(only show the point of 0:00 in the x axe)","Tide value "," Tide value per day of Hakodate",' Tide Value observed Hakodate','r-',xticks=xticks_para)
-   
+    # Draw All The Plots
+    #utils.plot_all(full_data_list,data_lengends,"Date(only show the point of 0:00 in the X axe)","Tide value ","Tide value per day of Hakodate,Otaru and Osaka",xticks=xticks_para,figsize=(16,10),saved="figures/Original_data_all.png")
+    
+    # Use Hakodate as the analysis target
+    #utils.plot_image(full_data_list[0],"Data(only show the point of 0:00 in the x axe)","Tide value "," Tide value per day of Hakodate",' Tide Value observed Hakodate','r-',xticks=xticks_para)
+    simple_average_data = utils.SampleMovingAverage(full_data_list[0])
+    culmative_average_data = utils.CumulativeMovingAverage(full_data_list[0])
+    expontial_average_data = utils.ExponentialMovingAverage(full_data_list[0])
+    draw_data_list =[full_data_list[0],simple_average_data,culmative_average_data,expontial_average_data]
+    data_lengend =["Orginal Hakodate Data","Simple Moving average data","Culmulative Averge Data","Exponential Moving Average Data"]
+    #utils.plot_all(draw_data_list,data_lengend,"Date(only show the point of 0:00 in the X axe)","Tide value ","Tide value per day of Hakodate with Moving Average",xticks=xticks_para,figsize=(16,10),saved="figures/Moving_Average_Hakodate.png")
+    # utils.draw_acf(simple_average_data,saved="figures/hakotade_acf.png")
+    # utils.draw_pacf(simple_average_data,saved='figures/hakotade_pacf.png')
+    Y,abs_y,angle_y = utils.calcuate_amplitude_spectrum(simple_average_data,mode='ffshift',normalization=True)
+    
     
 
 
