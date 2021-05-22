@@ -15,6 +15,8 @@ from scipy.fftpack import fft,fftshift,ifft
 from scipy.fftpack import fftfreq
 from scipy import signal
 import numpy as np
+import matplotlib.ticker as mtick
+from scipy.signal import detrend
 
 def merge_all_data(dataframe):
     cols,rows = dataframe.shape
@@ -148,12 +150,13 @@ def stationarity_test(data):
     return state
 
 # 数据求1阶差分
-def one_order_diff(data,content=None):
+def one_order_diff(data,content=None,saved=None):
     data = list_to_series(data)
     data = data.diff().dropna()
     data.plot(label=content)
     plt.legend()
     plt.title(content)
+    plt.savefig(saved)
     plt.show()
     return data
 
@@ -175,8 +178,8 @@ def get_bic_matrix(data):
         data = list_to_series(data)
         data = data.dropna()
     data = data.astype('float')
-    p_max = int(len(data)/10)
-    q_max = int(len(data)/10)
+    p_max = int(len(data)//500)
+    q_max = int(len(data)//500)
     bic_matrix =[]
     
     for p in range(p_max+1):
@@ -328,3 +331,59 @@ def compute_the_R(data1,data2):
     r = cor_martix[0][0]*cor_martix[1][1]/(cor_martix[0][1]*cor_martix[1][0])
     return r
 
+def spectrum(x, T):
+    amp_spec = np.abs(np.fft.fft(x))
+    power_spec = amp_spec ** 2
+
+    freqs = np.fft.fftfreq(len(x), T)
+    idx = np.argsort(freqs)
+
+    return amp_spec[idx], power_spec[idx], freqs[idx]
+
+def draw_spectrum(data_list,city_name,folder_name):
+    T = 3600
+
+    amp_spec, power_spec, freq = spectrum(data_list, T)
+
+    print('Max amp in spectrum:', np.max(amp_spec))
+    plt.figure(figsize=(15, 5))
+    plt.subplot(131)
+    x = list(range(len(data_list)))
+    y = data_list
+    plt.xlabel('Hours')
+    plt.ylabel('Observation')
+    plt.plot(x, y)
+    plt.title("{} Tide Data in March".format(city_name))
+
+    plt.subplot(132)
+    x = freq[360:]
+    y = amp_spec[360:]
+    # set 0 to 0Hz (DC component)
+    y[0] = 0
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Intensity')
+    plt.plot(x, y)
+    ax = plt.gca()
+    ax.xaxis.set_major_formatter(mtick.FormatStrFormatter('%.0e'))
+    plt.title("{} Amp Specturm".format(city_name))
+
+    plt.subplot(133)
+    y = power_spec[360:]
+    # set 0 to 0Hz (DC component)
+    y[0] = 0
+    plt.xlabel('Frequency (Hz)')
+    plt.ylabel('Intensity')
+    plt.plot(x, y)
+    ax = plt.gca()
+    ax.xaxis.set_major_formatter(mtick.FormatStrFormatter('%.0e'))
+    plt.title("{} Power Specturm".format(city_name))
+    plt.savefig("{}/{}_specturm_graphs.png".format(folder_name, city_name))
+    plt.show()
+
+
+
+def remove_bias_and_trend(x):
+    mean = np.mean(x)
+    xp = x - mean
+    xp = detrend(xp)
+    return xp
