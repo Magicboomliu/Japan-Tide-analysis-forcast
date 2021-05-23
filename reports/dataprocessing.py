@@ -24,6 +24,8 @@ def process_in_question_one(datalist,idx,city_name,ma_mode =0,saved_folder =None
     # Remove the Bias and Trend of the Data for further processing
     simple_average_data = utils.remove_bias_and_trend(simple_average_data)
 
+    utils.plot_image(simple_average_data,"Time(hours)","Tide Value","{} Tide reduced Data".format(city_name),"{} Data".format(city_name),saved="{}/{}_processed".format(saved_folder,city_name))
+
     # Draw the ACF plot of the data
     utils.draw_acf(simple_average_data, saved="{}/{}_acf.png".format(saved_folder,city_name))
 
@@ -56,6 +58,22 @@ def predict_in_ARIMA_model(datalist,idx,city_name,saved_folder):
 
 
 
+def process_in_question_two(datalist,city_name_list,saved_folder):
+    simple_average_data_list = []
+    R_value =[]
+    for i, data in enumerate(datalist):
+        simple_average_data = utils.SampleMovingAverage(data)
+        simple_average_data = utils.remove_bias_and_trend(simple_average_data)
+        simple_average_data_list.append(simple_average_data)
+
+
+    R_1_2 = utils.compute_the_R(data1=simple_average_data_list[0],data2=simple_average_data_list[1])
+    print("R value of 1 and 2 is : ",R_1_2)
+    utils.draw_cross_corr(simple_average_data_list[0],simple_average_data_list[1],saved_cities=city_name_list[:2],saved_folder=saved_folder)
+    R_1_3 = utils.compute_the_R(data1=simple_average_data_list[0],data2=simple_average_data_list[2])
+    print("R value of 1 and 3 is : ",R_1_3)
+    utils.draw_cross_corr(simple_average_data_list[0],simple_average_data_list[2],saved_cities=[city_name_list[0],city_name_list[2]],saved_folder=saved_folder)
+
 
 
 
@@ -84,48 +102,19 @@ if __name__=="__main__":
     #simple_average_data = process_in_question_one(full_data_list,idx=0,city_name="Hakotade",ma_mode=0,saved_folder="hakotade",saved=True)
 
     # Predict in ARIMA model
-    arima_model = predict_in_ARIMA_model(full_data_list,idx=0,city_name="hatotade",saved_folder="hatakode")
-    further_five_days = utils.predict_arima(arima_model,5)
-    print("predict result: \n",further_five_days)
+    # arima_model = predict_in_ARIMA_model(full_data_list,idx=0,city_name="hatotade",saved_folder="hatakode")
+    # further_five_days = utils.predict_arima(arima_model,5)
+    # print("predict result: \n",further_five_days)
+
+
+    # Draw the cross correlation Graph
+    city_lists =["hakotade","otaru","osaka"]
+    process_in_question_two(full_data_list,city_name_list=city_lists,saved_folder='figures')
+
 
 
     
-    
 
-
-
-
-
-
-
-
-
-
-    # max_data_list  = utils.use_max_each_rows(dataframe=dataframe)
-    # utils.plot_image(max_data_list,"data","tide value","max tide value per day",'max tide observed','r--')
-    # utils.draw_acf(max_data_list)
-    # utils.draw_pacf(max_data_list)
-    # utils.stationarity_test(max_data_list)
-    # max_data_diff_one = utils.one_order_diff(max_data_list,"one order difference of the max tide")
-    # utils.stationarity_test(max_data_diff_one)
-    # p,q = utils.get_p_and_q(max_data_diff_one)
-    # print("p is {},  q is {} ".format(p,q))
-    # model = utils.buildARIMA(max_data_diff_one,p,q,1)
-    # result  = utils.predict_arima(model,2)
-    # print(result)
-    # d = utils.trainModelWithARIMA(data= max_data_list)
-    # sma_data = utils.ExponentialMovingAverage(max_data_list)
-    # utils.plot_image(sma_data,"date","moving averged data","moving averged data","moving averaged data")
-    # utils.calcuate_amplitude_spectrum(max_data_list,mode='ffshift',normalization=True)
-    # ceps = utils.calculate_cepstrum(data=max_data_list,num_fft=1024)
-    # utils.plot_image(ceps,"ceps","power","cep spectrum",'cep spectrum',saved="data/cep.png")
-    # max_data_list2 =[]
-    # for i in max_data_list:
-    #     new = i + random.rand(1)
-    #     max_data_list2.append(new[0])
-
-    # r = utils.compute_the_R(data1=max_data_list,data2=max_data_list2)
-    # print(r)
 
     
     

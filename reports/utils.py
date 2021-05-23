@@ -387,3 +387,154 @@ def remove_bias_and_trend(x):
     xp = x - mean
     xp = detrend(xp)
     return xp
+
+def auto_corr(x, lags):
+    xp = remove_bias_and_trend(x)
+    var = np.var(xp)
+
+    corr = np.correlate(xp, xp, 'full')[len(x) - 1:]
+
+    # divide the correlation by b-a+1 for each lag
+    corr = np.asarray([corr[i] / (len(x) - i) for i in range(len(x))])
+    corr = corr / var
+
+    return corr[:lags], xp
+
+
+def cross_corr(x, y, lags):
+    xp = remove_bias_and_trend(x)
+    yp = remove_bias_and_trend(y)
+    var_x = np.var(xp)
+    var_y = np.var(yp)
+
+    corr = np.correlate(xp, yp, 'full')[len(x) - 1:]
+    corr = np.asarray([corr[i] / (len(x) - i) for i in range(len(x))])
+    corr = corr / np.sqrt(var_x * var_y)
+    return corr[:lags], xp, yp
+
+def draw_acfs(data_list, lags=300):
+
+    acf, detrended_x = auto_corr(data_list, lags)
+    print('The shape of acf: ', acf.shape)
+
+    plt.subplot(131)
+    x = list(range(len(data_list)))
+    y = data_list
+    plt.xlabel('Hours')
+    plt.ylabel('Observation')
+    plt.plot(x, y)
+
+    plt.subplot(132)
+    x = list(range(len(detrended_x)))
+    y = detrended_x
+    plt.xlabel('Hours')
+    plt.ylabel('Observation')
+    plt.plot(x, y)
+
+    plt.subplot(133)
+    x = list(range(lags))
+    y = acf
+    print('Min and max of acf: ', np.min(acf), np.max(acf))
+    plt.plot(x, y)
+    ax = plt.gca()
+    ax.set_xlim(0, lags)
+    maloc = plt.MultipleLocator(6)
+    ax.xaxis.set_major_locator(maloc)
+    plt.grid()
+    plt.xlabel('Time lag')
+    plt.ylabel('ACF')
+
+    plt.show()
+
+
+def draw_cross_corrs(data_list_x, data_list_y, lags=300):
+
+    ccf, xp, yp = cross_corr(data_list_x, data_list_y, lags)
+    print('The shape of ccf: ', ccf.shape)
+
+    plt.subplot(131)
+    x = list(range(len(xp)))
+    y = xp
+    plt.xlabel('Hours')
+    plt.ylabel('Observation')
+    plt.plot(x, y)
+
+    plt.subplot(132)
+    x = list(range(len(yp)))
+    y = yp
+    plt.xlabel('Hours')
+    plt.ylabel('Observation')
+    plt.plot(x, y)
+
+    plt.subplot(133)
+    x = list(range(lags))
+    y = ccf
+    print('Min and max of acf: ', np.min(ccf), np.max(ccf))
+    plt.plot(x, y)
+    ax = plt.gca()
+    ax.set_xlim(0, lags)
+    maloc = plt.MultipleLocator(6)
+    ax.xaxis.set_major_locator(maloc)
+    plt.grid()
+    plt.xlabel('Time lag')
+    plt.ylabel('Cross Correlation')
+
+    plt.show()
+
+
+def cross_corr(x, y, lags):
+    print(lags)
+    xp = remove_bias_and_trend(x)
+    yp = remove_bias_and_trend(y)
+    var_x = np.var(xp)
+    var_y = np.var(yp)
+
+    corr = np.correlate(xp, yp, 'full')[len(x) - 1:]
+    corr = np.asarray([corr[i] / (len(x) - i) for i in range(len(x))])
+    corr = corr / np.sqrt(var_x * var_y)
+
+    return corr[:lags], xp, yp
+
+def draw_cross_corr(data_list_x, data_list_y, lags=300, saved_cities=None,saved_folder=None):
+
+    ccf, xp, yp = cross_corr(data_list_x, data_list_y, 300)
+    print('The shape of ccf: ', ccf.shape)
+    plt.figure(figsize=(15,4))
+
+    plt.subplot(131)
+    x = list(range(len(xp)))
+    y = xp
+    plt.xlabel('Hours')
+    plt.ylabel('Observation')
+    plt.title("{} Tide Data".format(saved_cities[0]))
+    plt.plot(x, y)
+
+    plt.subplot(132)
+    x = list(range(len(yp)))
+    y = yp
+    plt.xlabel('Hours')
+    plt.ylabel('Observation')
+    plt.title("{} Tide Data".format(saved_cities[1]))
+    plt.plot(x, y)
+
+    plt.subplot(133)
+    x = list(range(96))
+    y = ccf[:96]
+    print('Min and max of acf: ', np.min(ccf), np.max(ccf))
+    plt.title("{}-{} cross correlation graph".format(saved_cities[0], saved_cities[1]))
+    plt.plot(x, y)
+    ax = plt.gca()
+    ax.set_xlim(0, 96)
+    maloc = plt.MultipleLocator(6)
+    ax.xaxis.set_major_locator(maloc)
+    plt.grid()
+    plt.xlabel('Time lag')
+    plt.ylabel('Cross Correlation')
+
+    if saved_cities is not None:
+        plt.savefig("{}/{}_{}cross.png".format(saved_folder,saved_cities[0],saved_cities[1]))
+    plt.show()
+
+
+
+
